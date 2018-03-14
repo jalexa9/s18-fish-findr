@@ -1,0 +1,33 @@
+version: '2'
+services:
+  api:
+    container_name: fishfinder
+    image: fisher/cmd/api
+    build:
+      context: go
+      dockerfile: Dockerfile
+      args:
+        package: api
+    command: ["/go/bin/api"]
+    environment:
+      - DB_URL=postgres://fisher@postgres/fisher?sslmode=disable
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=fisher
+      - DATABASE_USER=fisher
+      - PGPASSWORD=fisher
+      - PORT=8002
+    links:
+      - postgres:postgres
+    ports:
+      - "8002:8002"
+
+  postgres:
+    container_name: fisher_postgres
+    image: fisher/postgres
+    build: postgres
+    environment:
+      - DB_USER=fisher
+      - DB_NAME=fisher
+    ports:
+      - '5432:5432' 

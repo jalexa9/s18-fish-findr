@@ -1,0 +1,1 @@
+DROP TABLE user_interest, user_schedule, interest, schedule_hours, profile;

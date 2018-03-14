@@ -1,0 +1,29 @@
+{
+	"ImportPath": "github.com/Clemson-CPSC-4910/s18-fish-findr/go/fisher",
+	"GoVersion": "go1.9",
+	"GodepVersion": "v79",
+	"Packages": [
+		"../..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/Clemson-CPSC-4910/s18-fish-findr/go/postgres",
+			"Rev": "5fb1aea13de51152db34dc11aed93ad6865b441b"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Comment": "v1.6.1-10-gc0091a0",
+			"Rev": "c0091a029979286890368b4c7b301261e448e242"
+		},
+		{
+			"ImportPath": "github.com/jmoiron/sqlx",
+			"Comment": "sqlx-v1.1-146-gcf35089",
+			"Rev": "cf35089a197953c69420c8d0cecda90809764b1d"
+		},
+		{
+			"ImportPath": "github.com/jmoiron/sqlx/reflectx",
+			"Comment": "sqlx-v1.1-146-gcf35089",
+			"Rev": "cf35089a197953c69420c8d0cecda90809764b1d"
+		}
+	]
+}
