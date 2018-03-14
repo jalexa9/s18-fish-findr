@@ -109,7 +109,12 @@ func (db *DB) assertValueOfWhere(t *testing.T, num int, table string, value stri
 // CleanDB removes everything from the profile tables in the DB.
 func (db *DB) CleanDB(t *testing.T) error {
 	// TODO, add removes for more than just the profile table.
-	query := `DELETE FROM profile`
+	query := `DELETE FROM user_interest`
 	_, err := db.Exec(query)
+	if err != nil {
+		return errors.Wrapf(err, "Error deleting from user_interest table.")
+	}
+	query = `DELETE FROM profile`
+	_, err = db.Exec(query)
 	return errors.Wrapf(err, "Error deleting from profile table.")
 }

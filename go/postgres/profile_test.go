@@ -28,9 +28,15 @@ func TestGetProfiles(t *testing.T) {
 		Email:       "test.email",
 		Facebook:    "www.facebook.com",
 		Bio:         "test bio",
+		Interest: []fisher.Interest{
+			fisher.Interest{
+				Type: "fly fishing",
+			},
+		},
 	})
 	assert.Nil(t, err)
 	db.assertCountRows(t, 1, "profile")
+	db.assertCountRows(t, 1, "user_interest")
 	err = db.UpdateProfile(fisher.Profile{
 		ID:          2,
 		FirstName:   "FTest",
@@ -41,9 +47,18 @@ func TestGetProfiles(t *testing.T) {
 		Email:       "test.email",
 		Facebook:    "www.facebook.com",
 		Bio:         "test bio",
+		Interest: []fisher.Interest{
+			fisher.Interest{
+				Type: "fly fishing",
+			},
+			fisher.Interest{
+				Type: "redfish",
+			},
+		},
 	})
 	assert.Nil(t, err)
 	db.assertCountRows(t, 2, "profile")
+	db.assertCountRows(t, 3, "user_interest")
 	err = db.UpdateProfile(fisher.Profile{
 		ID:          3,
 		FirstName:   "FTest",
@@ -54,9 +69,11 @@ func TestGetProfiles(t *testing.T) {
 		Email:       "test.email",
 		Facebook:    "www.facebook.com",
 		Bio:         "test bio",
+		Interest:    nil,
 	})
 	assert.Nil(t, err)
 	db.assertCountRows(t, 3, "profile")
+	db.assertCountRows(t, 3, "user_interest")
 
 	db.Close()
 }
@@ -79,10 +96,18 @@ func TestUpdateProfile(t *testing.T) {
 		Email:       "test.email",
 		Facebook:    "www.facebook.com",
 		Bio:         "test bio",
+		Interest: []fisher.Interest{
+			fisher.Interest{
+				Type: "fly fishing",
+			},
+		},
 	})
 	assert.Nil(t, err)
 	db.assertCountRows(t, 1, "profile")
+	db.assertCountRows(t, 1, "user_interest")
 	db.assertValueOfWhere(t, 1, "profile", "first_name='FTest'")
+	db.assertValueOfWhere(t, 1, "user_interest", "interest_id=1")
+
 	err = db.UpdateProfile(fisher.Profile{
 		ID:          2,
 		FirstName:   "FTest",
@@ -93,10 +118,21 @@ func TestUpdateProfile(t *testing.T) {
 		Email:       "test.email",
 		Facebook:    "www.facebook.com",
 		Bio:         "test bio",
+		Interest: []fisher.Interest{
+			fisher.Interest{
+				Type: "fly fishing",
+			},
+			fisher.Interest{
+				Type: "redfish",
+			},
+		},
 	})
 	assert.Nil(t, err)
 	db.assertCountRows(t, 2, "profile")
+	db.assertCountRows(t, 3, "user_interest")
 	db.assertValueOfWhere(t, 2, "profile", "first_name='FTest'")
+	db.assertValueOfWhere(t, 2, "user_interest", "interest_id=1")
+	db.assertValueOfWhere(t, 1, "user_interest", "interest_id=3")
 
 	// Test changing data within a profile on update.
 	err = db.UpdateProfile(fisher.Profile{
@@ -109,14 +145,24 @@ func TestUpdateProfile(t *testing.T) {
 		Email:       "new.email",
 		Facebook:    "www.facebook.com",
 		Bio:         "new bio",
+		Interest:    nil,
 	})
 	assert.Nil(t, err)
 	db.assertCountRows(t, 2, "profile")
+	db.assertCountRows(t, 3, "user_interest")
 	db.assertValueOfWhere(t, 1, "profile", "first_name='FTest'")
 	db.assertValueOfWhere(t, 1, "profile", "first_name='NewName'")
 	db.assertValueOfWhere(t, 1, "profile", "password='newPass'")
 	db.assertValueOfWhere(t, 1, "profile", "phone_number='newPhone'")
 	db.assertValueOfWhere(t, 1, "profile", "email_address='new.email'")
 	db.assertValueOfWhere(t, 1, "profile", "bio='new bio'")
+
+	// TODO, make it where this is no longer true, if nil then remove this users interst.
+	db.assertValueOfWhere(t, 2, "user_interest", "interest_id=1")
+	db.assertValueOfWhere(t, 1, "user_interest", "interest_id=3")
 	db.Close()
+}
+
+func TestGetProfileByUserName(t *testing.T) {
+
 }

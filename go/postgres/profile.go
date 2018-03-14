@@ -146,6 +146,8 @@ func (db *DB) GetProfileMatches(s string) ([]fisher.Profile, error) {
 }
 
 // UpdateProfile accepts a profile and updates it or creates it in the DB.
+// TODO, if interest is nil, this is not removing the interest
+// TODO can be done by removing all user_interest for this user, then running the function.
 func (db *DB) UpdateProfile(profile fisher.Profile) error {
 	err := db.Transact(func(tx *sqlx.Tx) error {
 		var params []interface{}
@@ -187,15 +189,18 @@ func (db *DB) UpdateInterest(profile fisher.Profile, tx *sqlx.Tx) error {
 		params = append(params, ids.InterestID, ids.UserID)
 		count++
 	}
-
-	query := `
+	var err error
+	if count != 0 {
+		query := `
 		INSERT INTO user_interest (interest_id, user_id)
 		VALUES ` + buildValues(2, count) + `
 		ON CONFLICT (interest_id, user_id) DO UPDATE SET
 			interest_id = EXCLUDED.interest_id,
 			user_id = EXCLUDED.user_id
-	`
-	_, err := tx.Exec(query, params...)
+		`
+		_, err = tx.Exec(query, params...)
+	}
+
 	return errors.Wrapf(err, "Error inserting the user interest into the database.")
 }
 

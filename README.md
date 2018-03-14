@@ -51,4 +51,5 @@ These test are tagged with the tag `db`. In order to run these test you should s
 Then you can run the test like so: 
 
     cd fisherman-finder/go/postgres
-    go test -tags=db
+    export DB_URL=postgres://fisher@0.0.0.0/fisher?sslmode=disable
+    go test
