@@ -146,8 +146,6 @@ func (db *DB) GetProfileMatches(s string) ([]fisher.Profile, error) {
 }
 
 // UpdateProfile accepts a profile and updates it or creates it in the DB.
-// TODO, if interest is nil, this is not removing the interest
-// TODO can be done by removing all user_interest for this user, then running the function.
 func (db *DB) UpdateProfile(profile fisher.Profile) error {
 	err := db.Transact(func(tx *sqlx.Tx) error {
 		var params []interface{}
@@ -181,15 +179,20 @@ func (db *DB) UpdateProfile(profile fisher.Profile) error {
 func (db *DB) UpdateInterest(profile fisher.Profile, tx *sqlx.Tx) error {
 	var params []interface{}
 	var count int
+	var userID int
 	for _, i := range profile.Interest {
 		ids, err := db.getIDsForType(i.Type, profile.UserName, tx)
 		if err != nil {
 			return errors.Wrapf(err, "Error getting interest id from DB")
 		}
 		params = append(params, ids.InterestID, ids.UserID)
+		userID = ids.UserID
 		count++
 	}
-	var err error
+	err := db.pruneUserInterest(userID, tx)
+	if err != nil {
+		return errors.Wrapf(err, "Error pruning interest.")
+	}
 	if count != 0 {
 		query := `
 		INSERT INTO user_interest (interest_id, user_id)
@@ -202,6 +205,11 @@ func (db *DB) UpdateInterest(profile fisher.Profile, tx *sqlx.Tx) error {
 	}
 
 	return errors.Wrapf(err, "Error inserting the user interest into the database.")
+}
+
+func (db *DB) pruneUserInterest(i int, tx *sqlx.Tx) error {
+	_, err := tx.Exec(`DELETE FROM user_interest WHERE user_id = ` + strconv.Itoa(i))
+	return errors.Wrapf(err, "Error deleting from user interest for this user.")
 }
 
 func (db *DB) getIDsForType(t string, un string, tx *sqlx.Tx) (idForType, error) {
